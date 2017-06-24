@@ -1,0 +1,34 @@
+﻿@model IEnumerable<Blog1.Models.PostViewModel>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Text)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.ActionLink(item.Text, "Details", new { id = item.Id })
+            
+        </td>
+        <td>
+            @if (item.UserName.Equals(User.Identity.Name))
+            {
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id });
+                <span> | </span>
+                @Html.ActionLink("Delete", "Delete", new { id = item.Id });
+            }
+        </td>
+
+        <!-- 
+            
+            
+            -->            
+        
+    </tr>
+}
+
+</table>

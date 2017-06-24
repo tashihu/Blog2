@@ -1,0 +1,11 @@
+﻿
+@if (Request.IsAuthenticated)
+{
+    <b>@ViewBag.userName</b> <span> - </span> @Html.ActionLink("log out", "LogOff", "Account")
+}
+else
+{
+    @Html.ActionLink("Login", "login", "Account");
+    <span> / </span>
+    @Html.ActionLink("Register", "Register", "Account")
+}
