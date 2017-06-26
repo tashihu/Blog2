@@ -10,8 +10,8 @@ namespace Blog1.Infrastructure
     //его определенные правами доступа
     public class CustomRoleProvider : RoleProvider
     {
-        public IUserRepository UserRepositoryEntity
-           => (IUserRepository)System.Web.Mvc.DependencyResolver.Current.GetService(typeof(IUserRepository));
+        public IRepository<Users> UserRepositoryEntity
+           => (IRepository<Users>)System.Web.Mvc.DependencyResolver.Current.GetService(typeof(IRepository<Users>));
 
         public IRepository<ORM.Roles> RoleRepositoryEntity
             => (IRepository<ORM.Roles>)System.Web.Mvc.DependencyResolver.Current.GetService(typeof(IRepository<ORM.Roles>));
@@ -36,7 +36,7 @@ namespace Blog1.Infrastructure
         public override string[] GetRolesForUser(string email)
         {
             var roles = new string[] { };
-            var user = UserRepositoryEntity.GetUserByEmail(email);
+            var user = UserRepositoryEntity.Get(_user=>_user.Email.Equals(email)).FirstOrDefault();
             if (user == null) return roles;
             var userRole = RoleRepositoryEntity.Get(user.RoleId);
             if (userRole != null)

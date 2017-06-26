@@ -31,14 +31,14 @@ namespace DependencyResolver
                 kernel.Bind<DbContext>().To<BlogModel>().InSingletonScope();
             }
 
-            kernel.Bind<IUSerService>().To<UserService>();
-            kernel.Bind<IPostService>().To<PostService>();
-            kernel.Bind<IService<Comments>>().To<CommentService>();
+            kernel.Bind<IService<Users>>().To<BLService<Users>>();
+            kernel.Bind<IService<Posts>>().To<BLService<Posts>>();
+            kernel.Bind<IService<Comments>>().To<BLService<Comments>>();
 
-            kernel.Bind<IUserRepository>().To<UserRepository>();
-            kernel.Bind<IRepository<Roles>>().To<RoleRepository>();
-            kernel.Bind<IRepository<Comments>>().To<CommentRepository>();
-            kernel.Bind<IRepository<Posts>>().To<PostReposytory>();
+            kernel.Bind<IRepository<Users>>().To<Repository<Users>>();            
+            kernel.Bind<IRepository<Roles>>().To<Repository<Roles>>();
+            kernel.Bind<IRepository<Comments>>().To<Repository<Comments>>();
+            kernel.Bind<IRepository<Posts>>().To<Repository<Posts>>();
 
         }
     }

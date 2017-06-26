@@ -13,9 +13,9 @@ namespace Blog1.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IUSerService service;
+        private readonly IService<Users> service;
 
-        public AccountController(IUSerService service)
+        public AccountController(IService<Users> service)
         {
             this.service = service;
         }

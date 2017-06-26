@@ -8,11 +8,11 @@ namespace Blog1.Controllers
 {
     public class PostsController : Controller
     {
-        private readonly IPostService postService;
+        private readonly IService<Posts> postService;
         private readonly IService<Comments> commentService;
-        private readonly IUSerService userService;
+        private readonly IService<Users> userService;
 
-        public PostsController(IPostService service, IService<Comments> commentService, IUSerService userService)
+        public PostsController(IService<Posts> service, IService<Comments> commentService, IService<Users> userService)
         {
             this.postService = service;
             this.commentService = commentService;
@@ -27,29 +27,42 @@ namespace Blog1.Controllers
         [HttpGet]
         public PartialViewResult list(int count=10,int offset=0)
         {
-            return PartialView(postService.GetLastPosts(count,offset*count).Select(post => new PostViewModel()
+            return PartialView(postService
+                                    .GetAll()
+                                    .Skip(count*offset)
+                                    .Take(count)
+                                    .OrderBy(post=>post.PostId)
+                                    .Select(post => new PostViewModel()
             {
                 Text = post.Text,
                 Id = post.PostId,
-                UserName = userService.Get(post.UserId).Email
-                
+                UserName = userService.Get(post.UserId).Email             
 
             }
                 ));
         }
 
         [HttpGet]
-        public ViewResult Autor(int id,int count = 10, int offset = 0)
+        public ViewResult Autor(string id,int count = 10, int offset = 0)
         {
-            ViewBag.name = userService.Get(id).Name;
-            return View(postService.GetUserPosts(id,count, offset * count)
-                    .Select(post => new PostViewModel()
+            var user = userService.Get(_user => _user.Name.Equals(id)).FirstOrDefault();
+            if (user != null)
             {
-                Text = post.Text,
-                Id = post.PostId,
-                UserName = userService.Get(post.UserId).Email
+                ViewBag.name = user.Name;
+                return View(postService
+                                 .Get(post=>post.UserId.Equals(user.UserId))
+                                 .Skip(offset*count)
+                                 .Take(count)
+                                 .OrderBy(post => post.PostId)
+                        .Select(post => new PostViewModel()
+                        {
+                            Text = post.Text,
+                            Id = post.PostId,
+                            UserName = userService.Get(post.UserId).Email
+                        }
+                    ));
             }
-                ));
+            return View();
         }
 
         [HttpGet]
@@ -74,13 +87,15 @@ namespace Blog1.Controllers
         [HttpPost]
         [Authorize(Roles = "user")]
         public ActionResult Create(PostNewModel e)
-        {            
+        {            // User.Identity.Name
             try
             {
                 var post = new Posts()
                 {
                     Text = e.Text,
-                    UserId = userService.getUserByName(User.Identity.Name).UserId
+                    UserId = userService.Get(user => user.Email.Equals(User.Identity.Name))
+                                        .FirstOrDefault()
+                                        .UserId
                 };
                 postService.Create(post);
                 return RedirectToAction("Index", "Home");
@@ -94,7 +109,9 @@ namespace Blog1.Controllers
         public ActionResult Delete(int id)
         {
             if (!User.Identity.IsAuthenticated) return RedirectToAction("Login", "Account");
-            if (User.Identity.Name.Equals("admin@mail.ru"))
+            var post = postService.Get(id);
+            var autor = userService.Get(post.UserId);
+            if (User.Identity.Name.Equals(autor.Email) || User.IsInRole("admin") )
             {
                 var comments = commentService.GetAll().Where(comm => comm.PostId == id);
                 foreach (var item in comments.ToList()) commentService.Delete(item.CommentId);

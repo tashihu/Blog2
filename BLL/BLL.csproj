@@ -49,13 +49,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interface\IUSerService.cs" />
-    <Compile Include="Interface\IPostService.cs" />
     <Compile Include="Interface\IService.cs" />
-    <Compile Include="Services\PostService.cs" />
-    <Compile Include="Services\CommentService.cs" />
-    <Compile Include="Services\RoleService.cs" />
-    <Compile Include="Services\UserService.cs" />
+    <Compile Include="Services\BLService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -8,10 +8,10 @@ namespace Blog1.Controllers
 {
     public class CommentsController : Controller
     {
-        private readonly IUSerService userService;
+        private readonly IService<Users> userService;
         private readonly IService<Comments> commentService;
 
-        public CommentsController(IUSerService service, IService<Comments> commentService)
+        public CommentsController(IService<Users> service, IService<Comments> commentService)
         {
             this.userService = service;
             this.commentService = commentService;

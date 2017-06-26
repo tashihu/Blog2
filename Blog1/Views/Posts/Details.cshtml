@@ -21,7 +21,7 @@
             <b>Autor</b>
         </dt>
         <dd>
-            @Html.ActionLink(Model.UserName, "Autor", "Posts", new { id = Model.UserId }, null)
+            @Html.ActionLink(Model.UserName, "Autor", "Posts", new { id = Model.UserName }, null)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Comments)
