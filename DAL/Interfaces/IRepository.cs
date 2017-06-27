@@ -7,8 +7,7 @@ namespace DAL.Interfaces
     {
         void Create(T e);
         T Get(int id);
-        IEnumerable<T> Get(Func<T, bool> predicate);
-        IEnumerable<T> GetAll();
+        IEnumerable<T> Get(Func<T, bool> where=null,Func<T,int> orderBy=null);
         void Update(T e);
         void Delete(int id);
     }

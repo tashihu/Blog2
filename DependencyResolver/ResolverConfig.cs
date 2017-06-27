@@ -34,6 +34,7 @@ namespace DependencyResolver
             kernel.Bind<IService<Users>>().To<BLService<Users>>();
             kernel.Bind<IService<Posts>>().To<BLService<Posts>>();
             kernel.Bind<IService<Comments>>().To<BLService<Comments>>();
+            
 
             kernel.Bind<IRepository<Users>>().To<Repository<Users>>();            
             kernel.Bind<IRepository<Roles>>().To<Repository<Roles>>();

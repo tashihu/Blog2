@@ -1,6 +1,8 @@
 ﻿using BLL.Interface;
+using BLL.Services;
 using Blog1.Models;
 using ORM;
+using System;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -11,27 +13,49 @@ namespace Blog1.Controllers
         private readonly IService<Posts> postService;
         private readonly IService<Comments> commentService;
         private readonly IService<Users> userService;
+        private readonly SearchService searchService;
 
         public PostsController(IService<Posts> service, IService<Comments> commentService, IService<Users> userService)
         {
             this.postService = service;
             this.commentService = commentService;
             this.userService = userService;
+            this.searchService = new SearchService(postService);
         }
+        public PartialViewResult Search()
+        {
+            return PartialView("_search");
+        }
+        [HttpPost]
+        public ActionResult Search2(string SearchString = null)
+        {
+            var results = searchService.Search(SearchString).Select(post => new PostViewModel()
+            {
+                Text = post.Text,
+                Id = post.PostId,
+                UserName = userService.Get(post.UserId).Email
 
+            });
+            if (results.Count() > 0)
+            {
+                return View("Search",results);
+            }
+            else return View("SearchNotFound");
+        }
         // GET: Post
         public ActionResult Index()
         {        
             return View();
         }
-        [HttpGet]
-        public PartialViewResult list(int count=10,int offset=0)
+        
+        [HttpGet]        
+        public PartialViewResult List(int count=10,int offset=0)
         {
             return PartialView(postService
-                                    .GetAll()
+                                    .Get()
                                     .Skip(count*offset)
                                     .Take(count)
-                                    .OrderBy(post=>post.PostId)
+                                    .OrderBy(post=>post.CreateDate)
                                     .Select(post => new PostViewModel()
             {
                 Text = post.Text,
@@ -53,7 +77,7 @@ namespace Blog1.Controllers
                                  .Get(post=>post.UserId.Equals(user.UserId))
                                  .Skip(offset*count)
                                  .Take(count)
-                                 .OrderBy(post => post.PostId)
+                                 .OrderBy(post => post.CreateDate)
                         .Select(post => new PostViewModel()
                         {
                             Text = post.Text,
@@ -62,7 +86,7 @@ namespace Blog1.Controllers
                         }
                     ));
             }
-            return View();
+            return View("NotFoundAutor");
         }
 
         [HttpGet]
@@ -75,7 +99,8 @@ namespace Blog1.Controllers
                 Text = postentity.Text,
                 Id = postentity.PostId,
                 UserId = postentity.UserId,
-                UserName = username
+                UserName = username,
+                CreateDate = postentity.CreateDate
             };            
             return View(post);
         }
@@ -87,39 +112,30 @@ namespace Blog1.Controllers
         [HttpPost]
         [Authorize(Roles = "user")]
         public ActionResult Create(PostNewModel e)
-        {            // User.Identity.Name
-            try
+        {
+            var user = userService.Get(u => u.Email.Equals(User.Identity.Name))
+                                    .FirstOrDefault();
+            var post = new Posts()
             {
-                var post = new Posts()
-                {
-                    Text = e.Text,
-                    UserId = userService.Get(user => user.Email.Equals(User.Identity.Name))
-                                        .FirstOrDefault()
-                                        .UserId
-                };
-                postService.Create(post);
-                return RedirectToAction("Index", "Home");
-            }
-            catch
-            {
-                return RedirectToAction("Index", "Home");
-            }
+                Text = e.Text,
+                UserId = user.UserId,
+                CreateDate = DateTime.Now
+            };
+            postService.Create(post);
+            return RedirectToAction("Autor", new { id =  user.Name});
         }
         [HttpGet]
+        [PostAutor]
         public ActionResult Delete(int id)
         {
-            if (!User.Identity.IsAuthenticated) return RedirectToAction("Login", "Account");
-            var post = postService.Get(id);
-            var autor = userService.Get(post.UserId);
-            if (User.Identity.Name.Equals(autor.Email) || User.IsInRole("admin") )
-            {
-                var comments = commentService.GetAll().Where(comm => comm.PostId == id);
-                foreach (var item in comments.ToList()) commentService.Delete(item.CommentId);
-                postService.Delete(id);
-            }
-            return RedirectToAction("Index", "Home");
+            var comments = commentService.Get(where: comm => comm.PostId == id);
+            foreach (var item in comments.ToList()) commentService.Delete(item.CommentId);
+            var autor = userService.Get(postService.Get(id).UserId).Name;
+            postService.Delete(id);
+            return RedirectToAction("Autor", new { id = autor });
         }
         [HttpGet]
+        [PostAutor]
         public ActionResult Edit(int id)
         {
             var postEntity = postService.Get(id);
@@ -127,12 +143,13 @@ namespace Blog1.Controllers
             return View(postModel);
         }
         [HttpPost]
+        [PostAutor]
         public ActionResult Edit(Models.PostNewModel collection)
         {
             var post = postService.Get(collection.Id);
             post.Text = collection.Text;
             postService.Update(post);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Details", "Posts", new { id = post.PostId });
         }
 
     }

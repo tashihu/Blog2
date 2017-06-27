@@ -24,13 +24,9 @@ namespace BLL.Services
         {
             return repository.Get(id);
         }
-        public IEnumerable<T> Get(Func<T, bool> predicate)
+        public IEnumerable<T> Get(Func<T, bool> predicate = null,Func<T,int> orderBy=null)
         {
-            return repository.Get(predicate);
-        }
-        public IEnumerable<T> GetAll()
-        {
-            return repository.GetAll().Select(user => user);
+            return repository.Get(where: predicate, orderBy: orderBy);
         }
         public void Update(T e)
         {

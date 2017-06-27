@@ -24,13 +24,12 @@ namespace DAL
         {
             return context.Set<T>().Find(id);
         }
-        public IEnumerable<T> Get(Func<T, bool> predicate)
+        public IEnumerable<T> Get(Func<T, bool> predicate=null,Func<T,int> keyselector = null)
         {
-            return context.Set<T>().AsNoTracking().Where(predicate).ToList();
-        }
-        public IEnumerable<T> GetAll()
-        {
-            return context.Set<T>().Select(user => user).ToList();
+            IEnumerable<T> getRequest = context.Set<T>();
+            getRequest = (predicate == null) ? getRequest : getRequest.Where(predicate);
+            getRequest = (keyselector == null) ? getRequest : getRequest.OrderBy(keyselector);
+            return getRequest;
         }
         public void Update(T e)
         {
@@ -38,9 +37,15 @@ namespace DAL
             context.SaveChanges();
         }
         public void Delete(int id)
-        {            
-            context.Set<T>().Remove(Get(id));
-            context.SaveChanges();         
+        {
+            var item = Get(id);
+                context.Set<T>().Remove(Get(id));
+                context.SaveChanges();            
+        }
+        public void Delete(T e)
+        {
+            context.Set<T>().Remove(e);
+            context.SaveChanges();
         }
     }
 }

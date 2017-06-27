@@ -19,7 +19,7 @@ namespace Blog1.Infrastructure
         public override bool IsUserInRole(string email, string roleName)
         {
 
-            Users user = UserRepositoryEntity.GetAll().FirstOrDefault(u => u.Email == email);
+            Users user = UserRepositoryEntity.Get(where: u => u.Email.Equals(email)).FirstOrDefault();
 
             if (user == null) return false;
 

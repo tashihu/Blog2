@@ -1,0 +1,9 @@
+﻿@using (Html.BeginForm("Search2", "posts"))
+{
+    <div class="form-horizontal">
+        <div> 
+            @Html.TextBox("SearchString", "Search post text", new { @class = "form-search" })
+            <input type="submit" value="Search" class="btn btn-default" />            
+        </div>
+    </div>
+}

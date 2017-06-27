@@ -35,7 +35,7 @@ namespace Blog1.Infrastructure
 
         public override bool ValidateUser(string email, string password)
         {
-            var user = UserRepositoryEntity.Get(_user => _user.Email.Equals(email)).FirstOrDefault();
+            var user = UserRepositoryEntity.Get(where:_user => _user.Email.Equals(email)).FirstOrDefault();
             
 
             if (user != null && Crypto.VerifyHashedPassword(user.Password, password))

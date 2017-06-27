@@ -18,6 +18,11 @@ namespace Blog1.Models
         [DataType(DataType.Text)]
         [Display(Name = "UserName")]
         public string UserName { get; set; }
+
+        [DataType(DataType.DateTime)]
+        [Display(Name = "Date")]
+        public DateTime CreateDate { get; set; }
+
         public int UserId { get; set; }
         [DataType(DataType.Html)]
         [Display(Name = "Comments")]

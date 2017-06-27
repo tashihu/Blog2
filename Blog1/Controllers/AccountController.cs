@@ -28,7 +28,7 @@ namespace Blog1.Controllers
         [Authorize(Roles = "administrator")]
         public ActionResult Users()
         {
-            return View(service.GetAll().Select(user => user));
+            return View(service.Get());
         }
         [HttpGet]
         [AllowAnonymous]
@@ -51,7 +51,7 @@ namespace Blog1.Controllers
                     FormsAuthentication.SetAuthCookie(user.Email, true);
                     //Управляет службами проверки подлинности с помощью форм для веб-приложений
                     
-                     return RedirectToAction("Index", "Home");
+                     return RedirectToAction("Index", "Posts");
                     
                 }
                 else
@@ -85,7 +85,7 @@ namespace Blog1.Controllers
                 return View(viewModel);
             }
 
-            var anyUser = service.GetAll().Any(u => u.Email.Contains(viewModel.Email));
+            var anyUser = service.Get(u => u.Email.Contains(viewModel.Email)).Any();
 
             if (anyUser)
             {
@@ -101,7 +101,7 @@ namespace Blog1.Controllers
                 if (membershipUser != null)
                 {
                     FormsAuthentication.SetAuthCookie(viewModel.Email, false);
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Posts");
                 }
                 else
                 {
@@ -128,7 +128,7 @@ namespace Blog1.Controllers
             ci.Dispose();
             return null;
         }
-        public PartialViewResult log()
+        public PartialViewResult Log()
         {
             if(User.Identity.IsAuthenticated)
             ViewBag.userName = User.Identity.Name;
